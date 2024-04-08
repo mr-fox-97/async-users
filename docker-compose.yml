@@ -24,11 +24,13 @@ services:
     volumes:
         - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  python:
+  python-tests:
     profiles: [tests]
     build:
       context: .
       dockerfile: Dockerfile
+
+    command: poetry run pytest
       
     container_name: python
     restart: 
@@ -42,7 +44,6 @@ services:
       - network
     volumes:
       - .:/app
-    command: ["poetry", "run", "pytest"]
 
   pgadmin:
     profiles: [admin]

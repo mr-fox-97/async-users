@@ -17,5 +17,5 @@ jobs:
       with:
         python-version: '3.10'
 
-    - run: docker-compose --profile tests up --build
+    - run: docker-compose --profile tests up --build --exit-code-from python-tests
     - run: docker compose down -v --remove-orphans
