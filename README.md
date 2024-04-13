@@ -72,7 +72,7 @@ from users.auth import exceptions
 from users.auth.settings import Settings
 from users.auth.adapters import Accounts
 
-accounts = Accounts(settings=Settings(database_uri=database_url, testing_mode=True, auth_api_prefix='/auth'))
+accounts = Accounts(settings=Settings(database_uri=database_url, testing_mode=True))
 
 async with accounts:
     account = await accounts.create(username='test', password='yourpassword') # Here you can access the aggregate root
