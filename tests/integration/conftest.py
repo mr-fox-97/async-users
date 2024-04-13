@@ -1,5 +1,6 @@
 import pytest
 import socket
+import asyncio
 
 from typing import AsyncGenerator
 from typing import Any
@@ -8,7 +9,8 @@ from sqlalchemy import URL
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-@pytest.fixture(scope='module')
+
+@pytest.fixture(scope='session')
 async def engine(url : URL) -> AsyncGenerator[AsyncEngine, Any]:
     engine = create_async_engine(url)
     yield engine
