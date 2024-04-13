@@ -1,5 +1,5 @@
-from uuid import UUID
 import pytest
+from uuid import UUID
 from sqlalchemy import URL, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -56,14 +56,10 @@ async def test_accounts_transactions(accounts: Accounts):
 @pytest.mark.asyncio
 async def test_accounts(accounts: Accounts):
     async with accounts:
-        account = Account(identity=UUID('00000000-0000-0000-0000-000000000000'))
-        account.credential = Credential(
-            account_id=account.id,
-            username='test',
-            password=SecretStr('secret')
-        )
-        await accounts.add(account)
-        await accounts.credentials.add(account.credential)
+        account = await accounts.create(username='test', password='test')
+        assert account.credential.username == 'test'
+        assert account.credential.verify(secret='test')
 
         account = await accounts.read(username='test')
         assert account.credential.username == 'test'
+        assert account.credential.verify(secret='test')

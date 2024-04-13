@@ -17,3 +17,4 @@ class Settings(BaseSettings):
     database_session_autoflush: bool = Field(default=False, description=DATABASE_SESSION_AUTOFLUSH_DESCRIPTION)
     database_session_autocommit: bool = Field(default=False, description=DATABASE_SESSION_AUTOCOMMIT_DESCRIPTION)
     database_session_expire_on_commit: bool = Field(default=True, description=DATABASE_SESSION_EXPIRE_ON_COMMIT_DESCRIPTION)
+    auth_api_prefix: str = Field(default='/auth', description='Prefix for the authentication API')

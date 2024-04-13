@@ -1,5 +1,5 @@
 from typing import Optional
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from sqlalchemy import insert, select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -10,7 +10,6 @@ from src.users.auth.settings import Settings
 from src.users.auth.schemas import  accounts, credentials
 from src.users.auth.models.accounts import Account
 from src.users.auth.models.credentials import Credential
-
 
 class Credentials:
     def __init__(self, session: AsyncSession):
@@ -87,8 +86,17 @@ class Accounts:
         key, value = kwargs.popitem()
         if key == 'username':
             credential = await self.credentials.get(value)
+            if credential is None:
+                raise exceptions.AccountNotFound(f'Account with username {value} not found')
             account = Account(identity=credential.account_id)
             account.credential = credential
             return account
         else:
             raise ValueError(f'Invalid key: {key}')
+        
+    async def create(self, username: str, password: str) -> Account:
+        account = Account(identity=uuid4())
+        account.credential = Credential(account_id=account.id, username=username, password=password)
+        await self.add(account)
+        await self.credentials.add(account.credential)
+        return account
