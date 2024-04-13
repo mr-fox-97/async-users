@@ -1,6 +1,6 @@
 # Async User Management System with python
 
-This repository contains a Docker Compose setup for an async user management system built with Python using Poetry for dependency management.
+This repository contains a package for asynchronous user managment and a docker-compose container for setting up it's infrastructure.
 
 ## Features
 
@@ -12,6 +12,7 @@ This repository contains a Docker Compose setup for an async user management sys
 
 - Docker: Ensure you have Docker installed on your system.
 - Docker Compose: Ensure you have Docker Compose installed on your system.
+- Poetry: For develpment.
 
 ## Setup
 
@@ -27,9 +28,12 @@ git clone https://github.com/your-username/async-user-management.git
 cd async-users
 ```
 
-3. Run the following command to build and start the Docker containers:
+3. Run the following command to build and start the Docker containers for development:
 
+
+```
 docker-compose --profile dev up --build
+```
 
 This will setup a postgresql database, and other dependencies, (redis for sessions and rabbitmq for messaging in the future).
 
@@ -41,7 +45,7 @@ WARNING: This system is in development stage, is not ready for production yet.
 
 The system comes with a ready to use, jwt authentication fastapi router, you can plug-and-play ite it in your fastapi-app like in following example:
 
-```
+```python
 from fastapi import FastAPI, Request
 from fastapi import Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -63,10 +67,10 @@ async def hello(bearer: str = Depends(auth.bearer)):
 ```
 The user package also have an accounts domain model, and it's repository, so you can build your own authentication logic with it, like the following:
 
-```
-from src.users.auth import exceptions
-from src.users.auth.settings import Settings
-from src.users.auth.adapters import Accounts
+```python
+from users.auth import exceptions
+from users.auth.settings import Settings
+from users.auth.adapters import Accounts
 
 accounts = Accounts(settings=Settings(database_uri=database_url, testing_mode=True, auth_api_prefix='/auth'))
 
@@ -82,6 +86,13 @@ Also I will be adding soon a message queue to the Account aggregate root, so you
 ## Contributing
 
 Contributions are welcome! Feel free to open issues or pull requests for any improvements or features you'd like to see in this project.
+Make sure to use the ```Setting(test_mode=True)``` so transactions are rolledback when exit the unit of work, event after you commit them. 
+There is a workflow for running your integration tests in github actions. You can run your tests in the docker compose container with the command:
+
+```
+docker-compose --profile tests up --build --exit-code-from python-tests
+```
+
 
 ## License
 
