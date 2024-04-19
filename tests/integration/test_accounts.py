@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.users.auth.settings import Settings
 from src.users.auth.schemas import accounts as accounts_table
-from src.users.auth.adapters import Accounts
+from src.users.auth.adapters.accounts import Accounts
 from src.users.auth.models.accounts import Account
 from src.users.auth.models.credentials import Credential, SecretStr
 
@@ -63,3 +63,5 @@ async def test_accounts(accounts: Accounts):
         account = await accounts.read(username='test')
         assert account.credential.username == 'test'
         assert account.credential.verify(secret='test')
+
+        await account.authenticate(secret='test')

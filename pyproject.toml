@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "async-users"
+name = "users"
 version = "0.1.0"
 description = "asynchronous user managment"
 authors = ["gnu-fox <eric.m.cardozo@mi.unc.edu.ar>"]
@@ -19,6 +19,8 @@ python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 pydantic-settings = "^2.2.1"
 python-ulid = {extras = ["pydantic"], version = "^2.4.0.post0"}
 python-multipart = "^0.0.9"
+websockets = "^12.0"
+aioredis = "^2.0.1"
 
 
 [tool.poetry.group.tests.dependencies]

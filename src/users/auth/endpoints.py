@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 
 from src.users.auth import exceptions
 from src.users.auth.settings import Settings
-from src.users.auth.adapters import Accounts
+from src.users.auth.adapters.accounts import Accounts
 from src.users.auth.models.tokens import Token
 
 class Auth:
@@ -24,7 +24,8 @@ class Auth:
         async with self.accounts:
             try:
                 account = await self.accounts.read(username=form.username)
-                return account.authenticate(secret=form.password)
+                account.authenticate(secret=form.password)
+                return account.access_token
 
             except exceptions.AccountNotFound:
                 raise HTTPException(
@@ -49,8 +50,9 @@ class Auth:
         async with self.accounts:
             try:
                 account = await self.accounts.create(username=form.username, password=form.password)
-                return account.authenticate(secret=form.password)
-
+                account.authenticate(secret=form.password)
+                return account.access_token
+                
             except exceptions.AccountAlreadyExists:
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,

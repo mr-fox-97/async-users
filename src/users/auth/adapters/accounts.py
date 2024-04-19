@@ -1,5 +1,4 @@
-from typing import Optional
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from sqlalchemy import insert, select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -7,33 +6,19 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 from src.users.auth import exceptions
 from src.users.auth.settings import Settings
-from src.users.auth.schemas import  accounts, credentials
+from src.users.auth.schemas import  accounts
 from src.users.auth.models.accounts import Account
 from src.users.auth.models.credentials import Credential
+from src.users.auth.adapters.credentials import Credentials
 
-class Credentials:
-    def __init__(self, session: AsyncSession):
-        self.session = session
+from typing import TypeVar, Generic
+from typing import Set, Dict, List
+from typing import Callable
+from typing import Generator
+from collections import deque
 
-    async def add(self, credential: Credential):
-        command = insert(credentials).values(
-            account_id=credential.account_id,
-            username=credential.username,
-            password=credential.password.get_secret_value()
-        )
-        await self.session.execute(command)
-
-    async def get(self, username: str) -> Optional[Credential]:
-        result = await self.session.execute(
-            select(credentials).where(credentials.username == username)
-        )
-        credential = result.scalars().first()
-        return Credential(
-            account_id=credential.account_id,
-            username=credential.username,
-            password=credential.password
-        ) if credential else None
-
+from src.users.auth.models import events
+from src.users.auth.models.events import Event
 
 class Accounts:
     def __init__(self, settings: Settings):
