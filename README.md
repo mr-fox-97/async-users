@@ -1,10 +1,11 @@
 # Async User Management System with python
 
 This repository contains a package for asynchronous user managment and a docker-compose container for setting up it's infrastructure.
+Since it has a carefully designed event driven architecture, it's completly extensible, there are not first citizen class authentication methods, so feel free to add your own, like phone message, email auth, etc.
 
 ## Features
 
-- Asynchronous user management system.
+- Asynchronous user management system (Only authentication for now).
 - Docker Compose setup for easy deployment and development.
 - Utilizes Python Poetry for managing dependencies and virtual environment.
 
@@ -35,7 +36,14 @@ cd async-users
 docker-compose --profile dev up --build
 ```
 
-This will setup a postgresql database, and other dependencies, (redis for sessions and rabbitmq for messaging in the future).
+If you want to test locally:
+
+```
+docker-compose --profile tests up --build --exit-code-from python-tests
+```
+
+
+This will setup a postgresql database, and other dependencies, (redis for user activity and rabbitmq for messaging in the future).
 
 WARNING: This system is in development stage, is not ready for production yet. 
 
@@ -43,14 +51,14 @@ WARNING: This system is in development stage, is not ready for production yet.
 
 ## Usage
 
-The system comes with a ready to use, jwt authentication fastapi router, you can plug-and-play ite it in your fastapi-app like in following example:
+The system comes with a ready to use, jwt authentication fastapi router, you can plug-and-play it in your fastapi-app like in following example:
 
 ```python
 from fastapi import FastAPI, Request
 from fastapi import Depends
 from fastapi.middleware.cors import CORSMiddleware
+from users.settings import Settings
 from users.auth.endpoints import Auth
-from users.auth.settings import Settings
 
 database_url = "your-database-url"
 
@@ -65,28 +73,64 @@ async def hello(bearer: str = Depends(auth.bearer)):
     return {'message': 'Hello, World!'}   # Protected route by a jwt token. 
 
 ```
-The user package also have an accounts domain model, and it's repository, so you can build your own authentication logic with it, like the following:
+
+If you want to use only some auth functions with your own routes, you can access auth methods easily:
 
 ```python
+
+@api.post('/my-auth-route')
+async def auth_route(self, form: Annotated[OAuth2PasswordRequestForm, Depends()])
+    return await auth.login(form)
+
+```
+
+You can also, write your own logic using the domain model:
+
+```python
+
+from users.settings import Settings
 from users.auth import exceptions
-from users.auth.settings import Settings
-from users.auth.adapters import Accounts
+from users.auth.repository import Accounts
+from users.auth.models import Credentials
 
 accounts = Accounts(settings=Settings(database_uri=database_url, testing_mode=True))
 
 async with accounts:
-    account = await accounts.create(username='test', password='yourpassword') # Here you can access the aggregate root
-    #Your logic here
+    account = await accounts.create() # Here you can access the aggregate root
+    account.credential = Credential(username='username', password='password')
+    account.email = 'test@email.com'  # Seems easy but there is some dark wizzard magic going on...
+    await account.save() #Value objects are created into the root using events, and the save method call the handlers.
+
+async with accounts:
+    account = await accounts.read(email='test@email.com')
+    account.credential = Credential(username='other-username', password='other-password')
+    await account.save() #Same here, to root decides to use an update handler instead of a add handler.
 
 ```
-
-I will add support for different types of authentication soon, like email passwords, phone numbers, social providers, etc.
-Also I will be adding soon a message queue to the Account aggregate root, so you can extend it with your own events and handlers.
 
 ## Contributing
 
 Contributions are welcome! Feel free to open issues or pull requests for any improvements or features you'd like to see in this project.
-Make sure to use the ```Setting(test_mode=True)``` so transactions are rolledback when exit the unit of work, event after you commit them. 
+
+I will add support for different types of authentication soon, like email passwords, phone numbers, social providers, etc.
+If you want to contribute, go into auth/repository/accounts and implement the handlers with the ones you need.
+
+There is a dictionary like this: 
+
+```python
+    self.handlers: Dict[str, List[Callable]] = {
+        'credential-added': [handlers.AddCredential(self.credentials)],
+        'credential-updated': [handlers.UpdateCredential(self.credentials)], #TODO: Send email notification on credential update
+        #TODO: Add handlers for the following events
+        'email-added': [],
+        'email-updated': [],
+        ...
+    }
+```
+
+Of stuff that has to be implemented. 
+
+Make sure to use the ```Setting(test_mode=True)``` so transactions are rolledback when exit a context manager, even if you commit them. 
 There is a workflow for running your integration tests in github actions. You can run your tests in the docker compose container with the command:
 
 ```
