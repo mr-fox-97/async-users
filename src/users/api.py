@@ -3,8 +3,8 @@ from sqlalchemy import URL
 from fastapi import FastAPI, Request
 from fastapi import Depends
 from fastapi.middleware.cors import CORSMiddleware
+from src.users.settings import Settings
 from src.users.auth.endpoints import Auth
-from src.users.auth.settings import Settings
 
 database_url = URL.create(
         drivername = 'postgresql+asyncpg',

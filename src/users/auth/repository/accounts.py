@@ -18,8 +18,22 @@ class Accounts(Repository):
 
         self.handlers: Dict[str, List[Callable]] = {
             'credential-added': [handlers.AddCredential(self.credentials)],
-            'credential-updated': [handlers.UpdateCredential(self.credentials)],
-            'account-authenticated': []
+            'credential-updated': [handlers.UpdateCredential(self.credentials)], #TODO: Send email notification on credential update
+            #TODO: Add handlers for the following events
+            'email-added': [],
+            'email-updated': [],
+            'email-verified': [],
+            'phone-added': [],
+            'phone-updated': [],
+            'phone-verified': [],
+            'account-registered': [],
+            'account-authenticated': [],
+            'account-logged-in': [],
+            'account-logged-out': [],
+            'account-deleted': [],
+            'account-locked': [],
+            'account-unlocked': [],
+            'account-verified': [],
         }
 
     async def create(self, identity = uuid4()) -> Account:

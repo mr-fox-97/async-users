@@ -44,4 +44,3 @@ class Account(Entity):
     def access_token(self, expires_in: timedelta = timedelta(hours=8)) -> Token:
         claim = Claim(sub=self.id, exp=expires_in)
         return Tokenizer.encode(claim)
-        

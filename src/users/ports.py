@@ -10,11 +10,14 @@ from typing import Any
 from pydantic import BaseModel
 from pydantic import Field
 
-
 class Event(BaseModel):
     type: str = Field(..., alias='type')
     payload: Any = Field(..., alias='payload')
 
+class Handler(ABC):
+    @abstractmethod
+    async def __call__(self, event: Event):
+        ...
 
 class Entity:
     def __init__(self, identity, handlers: Dict[Event, List[Callable]] = {}, events: List[Event] = []):
