@@ -1,20 +1,15 @@
 from uuid import uuid4
 from typing import Dict, List, Callable
+
 from sqlalchemy import insert, select, delete, update
 
+from src.users.settings import Settings
+from src.users.ports import Repository
+from src.users.auth import handlers
 from src.users.auth import exceptions
-from src.users.auth.settings import Settings
 from src.users.auth.schemas import  accounts
 from src.users.auth.models.accounts import Account
-from src.users.auth.adapters.credentials import Credentials
-
-from src.users.settings import Settings
-from src.users.repository import Repository
-
-from src.users.auth.handlers import (
-    AddCredential,
-    UpdateCredential
-)
+from src.users.auth.repository.credentials import Credentials
 
 class Accounts(Repository):
     def __init__(self, settings: Settings):
@@ -22,13 +17,10 @@ class Accounts(Repository):
         self.credentials = Credentials(session=None)
 
         self.handlers: Dict[str, List[Callable]] = {
-            'credential-added': [AddCredential(self.credentials)],
-            'credential-updated': [UpdateCredential(self.credentials)],
+            'credential-added': [handlers.AddCredential(self.credentials)],
+            'credential-updated': [handlers.UpdateCredential(self.credentials)],
             'account-authenticated': []
         }
-
-    def initialize_attributes(self):
-        self.credentials.session = self.session
 
     async def create(self, identity = uuid4()) -> Account:
         account = Account(identity, handlers=self.handlers)

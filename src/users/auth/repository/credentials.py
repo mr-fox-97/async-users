@@ -4,10 +4,11 @@ from uuid import UUID, uuid4
 from sqlalchemy import insert, select, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.users.ports import DataAccessObject
 from src.users.auth.schemas import  credentials
 from src.users.auth.models.credentials import Credential
 
-class Credentials:
+class Credentials(DataAccessObject):
     def __init__(self, session: AsyncSession):
         self.session = session
 

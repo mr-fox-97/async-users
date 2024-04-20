@@ -3,9 +3,9 @@ from uuid import UUID
 from sqlalchemy import URL, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.users.auth.settings import Settings
+from src.users.settings import Settings
 from src.users.auth.schemas import accounts as accounts_table
-from src.users.auth.adapters.accounts import Accounts
+from src.users.auth.repository.accounts import Accounts
 from src.users.auth.models.accounts import Account
 from src.users.auth.models.credentials import Credential, SecretStr
 

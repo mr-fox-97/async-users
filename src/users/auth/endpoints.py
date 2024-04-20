@@ -4,9 +4,9 @@ from fastapi import FastAPI
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 
+from src.users.settings import Settings
 from src.users.auth import exceptions
-from src.users.auth.settings import Settings
-from src.users.auth.adapters.accounts import Accounts
+from src.users.auth.repository.accounts import Accounts
 from src.users.auth.models.tokens import Token
 from src.users.auth.models.credentials import Credential
 
@@ -32,6 +32,12 @@ class Auth:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail='Account with username not found'
+            )
+        
+        except exceptions.InvalidPassword:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail='Invalid password'
             )
         
         except exceptions.InvalidCredentials:

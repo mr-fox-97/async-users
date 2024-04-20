@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from src.users.auth.models.accounts import Event
-from src.users.auth.adapters.credentials import Credentials
+from src.users.auth.repository.credentials import Credentials
 
 class Handler(ABC):
     @abstractmethod
