@@ -8,7 +8,8 @@ from src.users.ports import Repository
 from src.users.auth import handlers
 from src.users.auth import exceptions
 from src.users.auth.schemas import  accounts
-from src.users.auth.models.accounts import Account
+from src.users.auth.models.credentials import Credential
+from src.users.auth.models.accounts import Account, Attributes
 from src.users.auth.repository.credentials import Credentials
 
 class Accounts(Repository):
@@ -37,7 +38,10 @@ class Accounts(Repository):
         }
 
     async def create(self, identity = uuid4()) -> Account:
-        account = Account(identity, handlers=self.handlers)
+        account = Account(attributes=Attributes(
+            identity= uuid4(), 
+            handlers=self.handlers, 
+        ))
         command = insert(accounts).values(id=account.id)
         await self.session.execute(command)
         return account
@@ -48,8 +52,13 @@ class Accounts(Repository):
             credential = await self.credentials.get(value)
             if not credential:
                 raise exceptions.AccountNotFound(f'Account with username {value} not found')
-            account = Account(identity=credential.account_id, handlers=self.handlers)
-            account.credential = credential
+            
+            account = Account(attributes=Attributes(
+                identity=credential.account_id, 
+                handlers=self.handlers, 
+                credential=credential
+            ))
+            
         else:
             raise ValueError(f'Invalid key: {key}')
         return account
@@ -57,3 +66,4 @@ class Accounts(Repository):
     async def delete(self, account: Account):
         command = delete(accounts).where(accounts.id == account.id)
         await self.session.execute(command)
+        del account

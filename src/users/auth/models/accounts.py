@@ -1,17 +1,28 @@
 import asyncio
+from uuid import uuid4
 from datetime import timedelta
-from typing import Dict, List, Callable
+from typing import Any, Dict, List, Callable
 from collections import deque
+
+from pydantic.dataclasses import dataclass
+from pydantic import Field
 
 from src.users.auth import exceptions
 from src.users.ports import Event, Entity
 from src.users.auth.models.credentials import Credential
 from src.users.auth.models.tokens import Token, Claim, Tokenizer
 
+@dataclass
+class Attributes:
+    identity: Any = Field(default_factory=uuid4)
+    handlers: Dict[str, List[Callable]] = Field(default={})
+    events: List[Event] = Field(default={})
+    credential: Credential = Field(default=None)
+
 class Account(Entity): 
-    def __init__(self, identity, handlers: Dict[Event, List[Callable]]):
-        super().__init__(identity, handlers)
-        self.__credential: Credential = None
+    def __init__(self, attributes: Attributes):
+        super().__init__(attributes.identity, attributes.handlers, attributes.events)
+        self.__credential: Credential = attributes.credential
 
     @property
     def credential(self) -> Credential:
