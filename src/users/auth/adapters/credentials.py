@@ -29,3 +29,10 @@ class Credentials:
             username=credential.username,
             password=credential.password
         ) if credential else None
+    
+    async def update(self, credential: Credential):
+        command = update(credentials).where(credentials.account_id == credential.account_id).values(
+            username=credential.username,
+            password=credential.password.get_secret_value()
+        )
+        await self.session.execute(command)

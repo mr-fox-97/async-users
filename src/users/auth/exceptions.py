@@ -7,7 +7,11 @@ class AccountNotFound(Exception):
         super().__init__(message, *args, **kwargs)
 
 class InvalidCredentials(Exception):
-    def __init__(self, message="Incorrect password", *args, **kwargs):
+    def __init__(self, message="Invalid credentials", *args, **kwargs):
+        super().__init__(message, *args, **kwargs)
+
+class InvalidPassword(Exception):
+    def __init__(self, message="Invalid password", *args, **kwargs):
         super().__init__(message, *args, **kwargs)
 
 class TokenError(Exception):
