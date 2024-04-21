@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List, Callable
 from collections import deque
-
+from datetime import datetime
 from sqlalchemy.ext.asyncio import async_sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine
 from src.users.settings import Settings
@@ -13,6 +13,7 @@ from pydantic import Field
 class Event(BaseModel):
     type: str = Field(..., alias='type')
     payload: Any = Field(..., alias='payload')
+    timestamp: datetime = Field(default_factory=datetime.now, alias='timestamp')
 
 class Handler(ABC):
     @abstractmethod

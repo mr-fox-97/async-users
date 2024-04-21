@@ -1,12 +1,9 @@
 import pytest
-from uuid import UUID
-from sqlalchemy import URL, select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import URL
 
+from src.users.auth import handlers
 from src.users.settings import Settings
-from src.users.auth.schemas import accounts as accounts_table
 from src.users.auth.repository.accounts import Accounts
-from src.users.auth.models.accounts import Account
 from src.users.auth.models.credentials import Credential, SecretStr
 
 @pytest.fixture
@@ -22,7 +19,8 @@ def settings(url: URL) -> Settings:
 
 @pytest.fixture
 def accounts(settings: Settings) -> Accounts:
-    return Accounts(settings)
+    accounts = Accounts(settings)
+    return accounts
 
 
 @pytest.mark.asyncio

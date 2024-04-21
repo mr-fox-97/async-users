@@ -37,3 +37,7 @@ class Credentials(DataAccessObject):
             password=credential.password.get_secret_value()
         )
         await self.session.execute(command)
+
+    async def remove(self, credential: Credential):
+        command = delete(credentials).where(credentials.account_id == credential.account_id)
+        await self.session.execute(command)

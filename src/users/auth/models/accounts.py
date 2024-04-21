@@ -22,7 +22,7 @@ class Attributes:
 class Account(Entity): 
     def __init__(self, attributes: Attributes):
         super().__init__(attributes.identity, attributes.handlers, attributes.events)
-        self.__credential: Credential = attributes.credential
+        self.__credential=attributes.credential
 
     @property
     def credential(self) -> Credential:
@@ -32,11 +32,14 @@ class Account(Entity):
     def credential(self, credential: Credential):
         credential = Credential(account_id=self.id, username=credential.username, password=credential.password)
         if self.__credential:
-            event = Event(type='credential-updated', payload=credential)
+            if credential is None: 
+                event = Event(type='credential-removed', payload=self.__credential)   
+            else:
+                event = Event(type='credential-updated', payload=credential)
         else:
             event = Event(type='credential-added', payload=credential)
-        self.__credential = credential
         self.events.append(event)
+        self.__credential = credential
 
     async def authenticate(self, **kwargs):
         key, value = kwargs.popitem()

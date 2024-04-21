@@ -1,8 +1,10 @@
 from uuid import UUID, uuid4
 from typing import Union
+
 from pydantic import SecretStr
 from pydantic import Field, field_validator
 from pydantic import BaseModel, ConfigDict
+
 from src.users.auth.models.security import Security
 
 class Credential(BaseModel):

@@ -16,28 +16,17 @@ class Accounts(Repository):
     def __init__(self, settings: Settings):
         super().__init__(settings)  
         self.credentials = Credentials(session=None)
-
-        self.handlers: Dict[str, List[Callable]] = {
+        self.__handlers = {
             'credential-added': [handlers.AddCredential(self.credentials)],
-            'credential-updated': [handlers.UpdateCredential(self.credentials)], #TODO: Send email notification on credential update
-            #TODO: Add handlers for the following events
-            'email-added': [],
-            'email-updated': [],
-            'email-verified': [],
-            'phone-added': [],
-            'phone-updated': [],
-            'phone-verified': [],
-            'account-registered': [],
-            'account-authenticated': [],
-            'account-logged-in': [],
-            'account-logged-out': [],
-            'account-deleted': [],
-            'account-locked': [],
-            'account-unlocked': [],
-            'account-verified': [],
+            'credential-updated': [handlers.UpdateCredential(self.credentials)],
+            'credential-removed': [handlers.RemoveCredential(self.credentials)],
         }
 
-    async def create(self, identity = uuid4()) -> Account:
+    @property
+    def handlers(self) -> Dict[str, List[Callable]]:
+        return self.__handlers
+
+    async def create(self) -> Account:
         account = Account(attributes=Attributes(
             identity= uuid4(), 
             handlers=self.handlers, 
