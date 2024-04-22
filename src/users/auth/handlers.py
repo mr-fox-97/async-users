@@ -8,21 +8,18 @@ class AddCredential(Handler):
         self.credentials = credentials
 
     async def __call__(self, event: events.CredentialAdded):
-        credential = event.payload
-        await self.credentials.add(credential)
+        await self.credentials.add(account=event.publisher, credential=event.payload)
 
 class UpdateCredential(Handler):
     def __init__(self, credentials: Credentials):
         self.credentials = credentials
 
     async def __call__(self, event: events.CredentialUpdated):
-        credential = event.payload
-        await self.credentials.update(credential)
+        await self.credentials.update(account=event.publisher, credential=event.payload)
 
 class RemoveCredential(Handler):
     def __init__(self, credentials: Credentials):
         self.credentials = credentials
 
     async def __call__(self, event: events.CredentialRemoved):
-        credential = event.payload
-        await self.credentials.remove(credential)
+        await self.credentials.remove(account=event.publisher)

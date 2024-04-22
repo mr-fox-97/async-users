@@ -34,5 +34,13 @@ async def test_accounts(accounts: Accounts):
         assert account.credential.username == 'test'
         assert account.credential.verify(password='test')    
 
+        account.credential = Credential(username='test', password='updated')
+        await account.save()
+
+        assert account.credential.verify(password='updated')
+
+        account = await accounts.read(username='test')
+        assert account.credential.verify(password='updated')
+
         with pytest.raises(Exception):
             await account.authenticate(password='invalid')

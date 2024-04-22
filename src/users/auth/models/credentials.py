@@ -8,7 +8,6 @@ from pydantic import BaseModel, ConfigDict
 from src.users.auth.models.security import Security
 
 class Credential(BaseModel):
-    account_id: UUID = Field(default=None)
     username: str = Field(..., min_length=3, max_length=50)
     password: SecretStr = Field(...)
 

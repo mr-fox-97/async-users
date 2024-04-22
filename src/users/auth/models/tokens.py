@@ -1,5 +1,5 @@
 import secrets
-from typing import Dict
+from typing import Annotated
 from datetime import datetime, timedelta
 from uuid import UUID
 from typing import Literal
@@ -39,10 +39,9 @@ AUD_DESCRIPTION = "Designates the specific recipient or audience intended to rec
 
 class Claim(BaseModel):
     model_config = ConfigDict(frozen=True)
-
-    sub: Union[str, UUID] = Field(..., description=SUB_DESCRIPTION)
-    exp: Union[int, timedelta] = Field(..., description=EXP_DESCRIPTION)
-    iat: Union[int, datetime] = Field(default=int(datetime.now().timestamp()), description=IAT_DESCRIPTION)
+    sub: Annotated[Union[str, UUID], Field(..., description=SUB_DESCRIPTION)]
+    exp: Annotated[Union[int, timedelta], Field(..., description=EXP_DESCRIPTION)]
+    iat: Annotated[Union[int, datetime], Field(default=int(datetime.now().timestamp()), description=IAT_DESCRIPTION)]
     
     @field_validator('sub', mode='before')
     @classmethod
