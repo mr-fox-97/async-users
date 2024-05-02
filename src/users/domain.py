@@ -69,20 +69,12 @@ class Aggregate:
         else:
             raise Exception(f"Command handler not found: {command.name}")
         
-        
+
 T = TypeVar('T', bound=Aggregate)
 class Repository(ABC, Generic[T]):
-    
-    @property
-    @abstractmethod
-    def queue(self) -> Queue:
-        ...
-
-    @property
-    @abstractmethod
-    def handlers(self) -> Dict[str, List[Callable[[Command], None]]]:
-        ...
-
+    def __init__(self):
+        self.queue: Queue = Queue()
+        self.handlers: Dict[str, List[Callable[[Command], None]]] = {}
 
 def register(method):
     @functools.wraps(method)

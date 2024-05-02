@@ -9,19 +9,16 @@ from src.users.services import Application
 
 from queue import Queue
 
-class Users(UnitOfWork, Repository[User]):
+class Base(UnitOfWork, Repository[User]):
     def __init__(self, bind: Application):
         super().__init__(bind.orm.engine, bind.orm.sessionmaker)
+        Repository.__init__(self)
+
+class Users(Base):
+    def __init__(self, bind: Application):
+        super().__init__(bind)
         self.accounts = Accounts(self.session)
 
-    @property
-    def handlers(self):
-        return {}
-    
-    @property
-    def queue(self):
-        return Queue()
-    
     @register
     async def create(self, name: str, id: UUID = uuid4()) -> User:
         async with self.accounts:
