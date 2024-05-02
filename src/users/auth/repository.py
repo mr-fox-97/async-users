@@ -14,10 +14,15 @@ class Base(UnitOfWork, Repository[User]):
         super().__init__(bind.orm.engine, bind.orm.sessionmaker)
         Repository.__init__(self)
 
+
 class Users(Base):
     def __init__(self, bind: Application):
         super().__init__(bind)
         self.accounts = Accounts(self.session)
+        self.handlers['update-username'] = [lambda command: self.accounts.update(command.payload)]
+        self.handlers['create-password'] = [lambda command: self.accounts.credentials.add(command.issuer, command.payload)]
+        self.handlers['update-password'] = [lambda command: self.accounts.credentials.update(command.issuer, command.payload)]
+        self.handlers['remove-password'] = [lambda command: self.accounts.credentials.remove(command.issuer)]
 
     @register
     async def create(self, name: str, id: UUID = uuid4()) -> User:

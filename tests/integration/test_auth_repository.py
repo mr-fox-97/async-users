@@ -15,7 +15,7 @@ async def users(application: Application, sessionmaker: AsyncGenerator) -> Users
     return users
 
 @pytest.mark.asyncio
-async def test_users(users: Users):   
+async def test_users_reads(users: Users):   
     async with users:
         accounts = users.accounts
         async with accounts:
@@ -28,3 +28,16 @@ async def test_users(users: Users):
         user = await users.read(username='test')
         assert user.id == account.user_id
         assert user.name == account.username
+
+    
+@pytest.mark.asyncio
+async def test_users_writes(users: Users):
+    async with users:
+        user = await users.create(name='test')
+        assert not user.has_password
+        user.password = 'test'
+        await user.save()
+
+    async with users:
+        users = await users.read(username='test')
+        assert user.has_password
