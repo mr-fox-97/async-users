@@ -21,3 +21,7 @@ class TokenError(Exception):
 class TokenExpired(Exception):
     def __init__(self, message="Expired token", *args, **kwargs):
         super().__init__(message, *args, **kwargs)
+
+class CommandHandlerNotFound(Exception):
+    def __init__(self, message="Command handler not found", *args, **kwargs):
+        super().__init__(message, *args, **kwargs)

@@ -1,41 +1,32 @@
 CREATE TABLE IF NOT EXISTS accounts (
-    id UUID,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id)
+    id SERIAL PRIMARY KEY,
+    user_id UUID NOT NULL,
+    user_name VARCHAR(255) UNIQUE NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS credentials (
-    id SERIAL,
-    account_id UUID,
-    username VARCHAR(50),
-    password VARCHAR(255),
-    PRIMARY KEY (id),
+    id SERIAL PRIMARY KEY,
+    account_id INT NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    password_salt VARCHAR(255),
     FOREIGN KEY (account_id) REFERENCES accounts(id)
 );
 
 CREATE TABLE IF NOT EXISTS emails (
-    id SERIAL,
-    account_id UUID,
-    email VARCHAR(50),
-    PRIMARY KEY (id),
+    id SERIAL PRIMARY KEY,
+    account_id INT NOT NULL,
+    email_address VARCHAR(255) NOT NULL,
+    email_is_primary BOOLEAN NOT NULL,
+    email_is_verified BOOLEAN NOT NULL,
     FOREIGN KEY (account_id) REFERENCES accounts(id)
 );
 
-CREATE TABLE IF NOT EXISTS users (
-    id SERIAL,
-    name VARCHAR(50),
-    account_id UUID,
-    PRIMARY KEY (id),
+CREATE TABLE IF NOT EXISTS phones (
+    id SERIAL PRIMARY KEY,
+    account_id INT NOT NULL,
+    phone_number VARCHAR(255) NOT NULL,
+    phone_is_primary BOOLEAN NOT NULL,
+    phone_is_verified BOOLEAN NOT NULL,
     FOREIGN KEY (account_id) REFERENCES accounts(id)
-);
-
-CREATE TABLE IF NOT EXISTS contacts (
-    id SERIAL,
-    user_id SERIAL,
-    contact_id SERIAL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (contact_id) REFERENCES users(id)
 );

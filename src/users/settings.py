@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Annotated
 from pydantic import Field
 from pydantic_settings import BaseSettings
 from sqlalchemy import URL
@@ -10,11 +10,17 @@ DATABASE_SESSION_AUTOCOMMIT_DESCRIPTION = 'Enable autocommit mode (True to commi
 DATABASE_SESSION_EXPIRE_ON_COMMIT_DESCRIPTION = 'Enable expire_on_commit (True to expire all objects attached to the session after commit)'
 TESTING_MODE_DESCRIPTION = 'Rollback transactions when exiting context manager (True to rollback, False to commit)'
 
+class SQLAlchemySettings(BaseSettings):
+    uri: Annotated[Union[str, URL], Field(description=DATABASE_URI_DESCRIPTION)]
+    engine_echo: Annotated[bool, Field(default=True, description=DATABASE_ENGINE_ECHO_DESCRIPTION)]
+    session_autoflush: Annotated[bool, Field(default=False, description=DATABASE_SESSION_AUTOFLUSH_DESCRIPTION)]
+    session_autocommit: Annotated[bool, Field(default=False, description=DATABASE_SESSION_AUTOCOMMIT_DESCRIPTION)]
+    session_expire_on_commit: Annotated[bool, Field(default=True, description=DATABASE_SESSION_EXPIRE_ON_COMMIT_DESCRIPTION)]
+
+class FastAPISettings(BaseSettings):
+    auth_prefix: str
+
 class Settings(BaseSettings):
-    testing_mode: bool = Field(default=False, description=TESTING_MODE_DESCRIPTION)
-    database_uri: Union[str, URL] = Field(description=DATABASE_URI_DESCRIPTION)
-    database_engine_echo: bool = Field(default=True, description=DATABASE_ENGINE_ECHO_DESCRIPTION)
-    database_session_autoflush: bool = Field(default=False, description=DATABASE_SESSION_AUTOFLUSH_DESCRIPTION)
-    database_session_autocommit: bool = Field(default=False, description=DATABASE_SESSION_AUTOCOMMIT_DESCRIPTION)
-    database_session_expire_on_commit: bool = Field(default=True, description=DATABASE_SESSION_EXPIRE_ON_COMMIT_DESCRIPTION)
-    auth_api_prefix: str = Field(default='/auth', description='Prefix for the authentication API')
+    testing_mode: bool = False
+    orm: SQLAlchemySettings
+    api: FastAPISettings
