@@ -1,6 +1,5 @@
 from uuid import UUID
 from src.domain import Entity, Root, Command
-from src.domain import Event
 from src.users.models import Account, Credential
 
 class User(Entity, Root):
@@ -18,10 +17,6 @@ class User(Entity, Root):
     
     @property
     def password(self) -> str:
-        return "********"
-    
-    @property
-    def password(self) -> str:
         return "********" if self.has_password else None
     
     @password.setter
@@ -31,7 +26,7 @@ class User(Entity, Root):
                 task = Command('update-password', payload=Credential(password=value), issuer=self.account)
             else:
                 task = Command('remove-password',  payload=Credential(password=value), issuer=self.account)
-                self.has_password = True
+                self.has_password = False
         else:
             if value is not None:
                 task = Command('add-password', payload=Credential(password=value), issuer=self.account)

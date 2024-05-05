@@ -14,6 +14,11 @@ class Users(Service, Repository):
         self.credentials = Credentials(self.session)
 
         self.handlers['verify-password'] = lambda command: self.credentials.verify(command.issuer, command.payload)
+
+        #TODO: Use events to mutate the state of the user
         self.handlers['add-password'] = lambda command: self.credentials.add(command.issuer, command.payload)
         self.handlers['update-password'] = lambda command: self.credentials.update(command.issuer, command.payload)
         self.handlers['remove-password'] = lambda command: self.credentials.remove(command.issuer)
+
+        
+    

@@ -17,11 +17,11 @@ class Users(Repository[User]):
     credentials: Credentials
 
     @register.output
-    async def create(self, username: str) -> User:
-        account = await self.accounts.read(username)
+    async def create(self, name: str) -> User:
+        account = await self.accounts.read(name)
         if account:
             raise exceptions.AccountAlreadyExists
-        account = await self.accounts.create(username)
+        account = await self.accounts.create(name)
         return User(account)
     
     @register.output

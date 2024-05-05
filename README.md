@@ -1,141 +1,53 @@
-# Async User Management System with python
+**User Management Domain Model**
 
-This repository contains a package for asynchronous user managment and a docker-compose container for setting up it's infrastructure.
-Since it has a carefully designed event driven architecture, it's completly extensible, there are not first citizen class authentication methods, so feel free to add your own, like phone message, email auth, etc.
+A Python-based domain model for user management, featuring a robust and scalable architecture. This project provides a foundation for building user-centric applications, with a focus on simplicity, flexibility, and testability.
 
-## Features
+Here is an updated version of the GitHub description:
 
-- Asynchronous user management system (Only authentication for now).
-- Docker Compose setup for easy deployment and development.
-- Utilizes Python Poetry for managing dependencies and virtual environment.
+**User Management Domain Model**
 
-## Prerequisites
+A Python-based domain model for user management, featuring a robust and scalable architecture. This project provides a foundation for building user-centric applications, with a focus on simplicity, flexibility, and testability.
 
-- Docker: Ensure you have Docker installed on your system.
-- Docker Compose: Ensure you have Docker Compose installed on your system.
-- Poetry: For develpment.
+**Key Features**
 
-## Setup
+* **Flexible User Registration**: Register users with a variety of authentication methods, not limited to traditional username and password combinations. Easily extend the system to support new authentication methods as needed.
+* **Event-Driven Architecture**: Built on an event-driven architecture, allowing for loose coupling between components and enabling a more scalable and resilient system. This architecture enables easy extension of the system through the addition of new event handlers, which can react to specific events and perform custom logic.
+* **Microservices-Ready**: Designed with microservices in mind, making it easy to integrate with other services and systems. The event-driven architecture and decoupled repositories and adapters enable seamless communication between microservices.
+* **Decoupled Repositories and Adapters**: Interact with various data storage systems, such as databases and file systems, using decoupled repositories and adapters. This allows for easy switching between different storage systems or adding new ones as needed.
+* **UnitOfWork Pattern**: Implementing the UnitOfWork pattern to manage transactions and ensure data consistency.
+* **Application Services**: A set of application services for performing common user management operations, such as user creation, authentication, and password verification.
+* **Test-Driven Development**: A comprehensive test suite using Pytest, ensuring the correctness and reliability of the domain model.
+* **Extensibility through Event and Command Handlers**: Easily extend the system by adding new event handlers, which can react to specific events and perform custom logic. Command handlers can also be added to handle specific commands, such as user registration or password reset. This allows for a high degree of customization and flexibility, making it easy to adapt the system to specific business needs.
 
-1. Clone this repository to your local machine:
+With this architecture, you can easily add new features or functionality by:
 
-```
-git clone https://github.com/your-username/async-user-management.git
-```
+* Creating new event handlers to react to specific events, such as user registration or password reset.
+* Implementing new command handlers to handle specific commands, such as user creation or authentication.
+* Adding new adapters to interact with different data storage systems or services.
+* Extending the application services to perform new user management operations.
 
-2. Navigate to the project directory:
-
-```
-cd async-users
-```
-
-3. Run the following command to build and start the Docker containers for development:
+This flexibility and extensibility make it easy to adapt the system to specific business needs and ensure that it remains scalable and maintainable over time.
 
 
-```
-docker-compose --profile dev up --build
-```
+**Getting Started**
 
-If you want to test locally:
+To run the tests, execute the following commands, be sure to have docker installed in your system:
 
-```
-docker-compose --profile tests up --build --exit-code-from python-tests
-```
+1. `docker-compose --profile tests up --build --exit-code-from python-tests`
+2. `docker compose down -v --remove-orphans`
+
+This will spin up a Docker container with the necessary dependencies, run the tests, and then tear down the container.
 
 
-This will setup a postgresql database, and other dependencies, (redis for user activity and rabbitmq for messaging in the future).
+**Contributing**
 
-WARNING: This system is in development stage, is not ready for production yet. 
+Contributions are welcome If you'd like to contribute to this project, please fork the repository, make your changes, and submit a pull request.
 
-4. Once the containers are up and running, you can access the application at `http://localhost:8000`.
+**License**
 
-## Usage
+This project is licensed under the [MIT License](LICENSE).
 
-The system comes with a ready to use, jwt authentication fastapi router, you can plug-and-play it in your fastapi-app like in following example:
-
-```python
-from fastapi import FastAPI, Request
-from fastapi import Depends
-from fastapi.middleware.cors import CORSMiddleware
-from users.settings import Settings
-from users.auth.endpoints import Auth
-
-database_url = "your-database-url"
-
-api = FastAPI(root_path="/api")
-api.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
-
-auth = Auth(settings=Settings(database_uri=database_url, testing_mode=True, auth_api_prefix='/auth'))
-auth.mount(api)
-
-@api.get('/')
-async def hello(bearer: str = Depends(auth.bearer)):
-    return {'message': 'Hello, World!'}   # Protected route by a jwt token. 
-
-```
-
-If you want to use only some auth functions with your own routes, you can access auth methods easily:
-
-```python
-
-@api.post('/my-auth-route')
-async def auth_route(self, form: Annotated[OAuth2PasswordRequestForm, Depends()])
-    return await auth.login(form)
-
-```
-
-You can also, write your own logic using the domain model:
-
-```python
-
-from users.settings import Settings
-from users.auth import exceptions
-from users.auth.repository import Accounts
-from users.auth.models import Credentials
-
-accounts = Accounts(settings=Settings(database_uri=database_url, testing_mode=True))
-
-async with accounts:
-    account = await accounts.create() # Here you can access the aggregate root
-    account.credential = Credential(username='username', password='password')
-    account.email = 'test@email.com'  # Seems easy but there is some dark wizzard magic going on...
-    await account.save() #Value objects are created into the root using events, and the save method call the handlers.
-
-async with accounts:
-    account = await accounts.read(email='test@email.com')
-    account.credential = Credential(username='other-username', password='other-password')
-    await account.save() #Same here, to root decides to use an update handler instead of a add handler.
-
-```
-
-## Contributing
-
-Contributions are welcome! Feel free to open issues or pull requests for any improvements or features you'd like to see in this project.
-
-I will add support for different types of authentication soon, like email passwords, phone numbers, social providers, etc.
-If you want to contribute, go into auth/repository/accounts and implement the handlers with the ones you need.
-
-There is a dictionary like this: 
-
-```python
-    self.handlers: Dict[str, List[Callable]] = {
-        'credential-added': [handlers.AddCredential(self.credentials)],
-        'credential-updated': [handlers.UpdateCredential(self.credentials)], #TODO: Send email notification on credential update
-        #TODO: Add handlers for the following events
-        'email-added': [],
-        'email-updated': [],
-        ...
-    }
-```
-
-Of stuff that has to be implemented. 
-
-Make sure to use the ```Setting(test_mode=True)``` so transactions are rolledback when exit a context manager, even if you commit them. 
-There is a workflow for running your integration tests in github actions. You can run your tests in the docker compose container with the command:
-
-```
-docker-compose --profile tests up --build --exit-code-from python-tests
-```
+I hope this helps Let me know if you need any further assistance.
 
 
 ## License
