@@ -5,14 +5,15 @@ import random, string
 from sqlalchemy import insert, select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.users.auth.schemas import credentials
-from src.users.auth.models import Credential, Security, Account
+from src.users.ports.credentials import Credentials as DAO
+from src.users.schemas import credentials
+from src.users.models import Credential, Security, Account
 
 def random_salt(length):
    letters = string.ascii_lowercase
    return ''.join(random.choice(letters) for i in range(length))
 
-class Credentials:
+class Credentials(DAO):
     def __init__(self, session: AsyncSession):
         self.session = session
 

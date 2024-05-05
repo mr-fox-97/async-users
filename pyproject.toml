@@ -21,6 +21,7 @@ python-ulid = {extras = ["pydantic"], version = "^2.4.0.post0"}
 python-multipart = "^0.0.9"
 websockets = "^12.0"
 aioredis = "^2.0.1"
+httpx = "^0.27.0"
 
 
 [tool.poetry.group.tests.dependencies]

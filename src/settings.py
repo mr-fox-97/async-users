@@ -18,9 +18,8 @@ class SQLAlchemySettings(BaseSettings):
     session_expire_on_commit: Annotated[bool, Field(default=True, description=DATABASE_SESSION_EXPIRE_ON_COMMIT_DESCRIPTION)]
 
 class FastAPISettings(BaseSettings):
+    users_prefix: str
     auth_prefix: str
 
 class Settings(BaseSettings):
-    testing_mode: bool = False
     orm: SQLAlchemySettings
-    api: FastAPISettings

@@ -1,18 +1,13 @@
 from uuid import UUID
-from dataclasses import dataclass
-from typing import List
+from src.domain import Entity, Root, Command
+from src.domain import Event
+from src.users.models import Account, Credential
 
-from src.users.auth.models import Account, Email, Phone, Credential, Security
-from src.users.domain import Aggregate, Command
-
-class User(Aggregate):
+class User(Entity, Root):
     def __init__(self, account: Account):
-        super().__init__()
         self.account = account
-        self.emails: List[Email] = []
-        self.phones: List[Phone] = []
-        self.has_password: bool = False
-
+        self.has_password = False
+    
     @property
     def id(self) -> UUID:
         return self.account.user_id
@@ -21,10 +16,9 @@ class User(Aggregate):
     def name(self) -> str:
         return self.account.username
     
-    @name.setter
-    def name(self, value):
-        task = Command('update-username', payload=Account(id=self.account.id, username=value), issuer=self.account)
-        self.tasks.append(task)
+    @property
+    def password(self) -> str:
+        return "********"
     
     @property
     def password(self) -> str:
@@ -37,8 +31,14 @@ class User(Aggregate):
                 task = Command('update-password', payload=Credential(password=value), issuer=self.account)
             else:
                 task = Command('remove-password',  payload=Credential(password=value), issuer=self.account)
+                self.has_password = True
         else:
             if value is not None:
-                task = Command('create-password', payload=Credential(password=value), issuer=self.account)
+                task = Command('add-password', payload=Credential(password=value), issuer=self.account)
             self.has_password = True
         self.tasks.append(task)
+    
+    async def verify(self, password: str) -> bool:
+        command = Command(name='verify-password', payload=Credential(password=password), issuer=self.account)
+        verified = await self.execute(command)
+        return verified

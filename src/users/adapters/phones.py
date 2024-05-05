@@ -3,11 +3,11 @@ from typing import Optional
 from sqlalchemy import insert, select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from src.users.adapters import DataAccessObject
-from src.users.auth.models import Phone, Account
-from src.users.auth.schemas import phones, accounts
+from src.users.ports.phones import Phones as DAO
+from src.users.models import Phone, Account
+from src.users.schemas import phones, accounts
 
-class Phones:
+class Phones(DAO):
     def __init__(self, session: AsyncSession):
         self.session = session
     
@@ -25,7 +25,7 @@ class Phones:
         await self.session.execute(command)
 
     async def remove(self, phone: Phone):
-        command = delete(phones).where(phones.id == phone.id)
+        command = delete(phones).where(phones.phone_number == phone.number)
         await self.session.execute(command)
             
     async def get(self, account: Account) -> List[Phone]:

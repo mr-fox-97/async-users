@@ -3,11 +3,11 @@ from typing import Optional
 from sqlalchemy import insert, select, update, delete
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
-from src.users.adapters import DataAccessObject
-from src.users.auth.models import Email, Account
-from src.users.auth.schemas import emails, accounts
+from src.users.ports.emails import Emails as DAO
+from src.users.models import Email, Account
+from src.users.schemas import emails, accounts
 
-class Emails:
+class Emails(DAO):
     def __init__(self, session: AsyncSession):
         self.session = session
 
@@ -21,7 +21,7 @@ class Emails:
         await self.session.execute(command)
     
     async def remove(self, email: Email):
-        command = delete(emails).where(emails.id == email.id)
+        command = delete(emails).where(emails.email_address == email.address)
         await self.session.execute(command)
 
     async def get(self, account: Account) -> List[Email]:
