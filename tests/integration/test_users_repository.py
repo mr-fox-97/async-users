@@ -19,12 +19,12 @@ async def test_users_service(uow: UOW):
     )
 
     async with uow:
-        user = await users.create(username='test')
+        user = await users.create(name='test')
         user.events.append(Event(name='test', payload='test'))
         assert user.id is not None
 
     async with uow:
-        user = await users.read(username='test')
+        user = await users.read(name='test')
         assert user.name == 'test'
 
     user = users.collection.pop()

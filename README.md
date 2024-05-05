@@ -28,6 +28,8 @@ With this architecture, you can easily add new features or functionality by:
 
 This flexibility and extensibility make it easy to adapt the system to specific business needs and ensure that it remains scalable and maintainable over time.
 
+**Testing and Deployment**
+This project uses GitHub Workflows to automate testing and deployment. The workflow includes running Pytest tests, including transactional integration tests, to ensure the correctness and reliability of the code.
 
 **Getting Started**
 
