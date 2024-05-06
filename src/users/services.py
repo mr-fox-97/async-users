@@ -20,11 +20,11 @@ class Users(Service):
             credentials=Credentials(self.session)
         )
 
+        self.register('verify-password', lambda command: self.repository.credentials.verify(command.issuer.root, command.payload))
         self.subscribe('user-created', lambda event: self.repository.add(event.payload))
         self.subscribe('password-created', lambda event: self.repository.credentials.add(event.publisher.root, event.payload))
         self.subscribe('password-updated', lambda event: self.repository.credentials.update(event.publisher.root, event.payload))
         self.subscribe('password-removed', lambda event: self.repository.credentials.remove(event.publisher.root))
-        self.register('verify-password', lambda command: self.repository.credentials.verify(command.issuer.root, command.payload))
     
     @register
     async def create(self, name: str, id: UUID = None):

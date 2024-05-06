@@ -4,9 +4,49 @@ A Python-based domain model for user management, featuring a robust and scalable
 
 Here is an updated version of the GitHub description:
 
-**User Management Domain Model**
+**Quick tour**
 
-A Python-based domain model for user management, featuring a robust and scalable architecture. This project provides a foundation for building user-centric applications, with a focus on simplicity, flexibility, and testability.
+This project provides a domain model for user management. The domain model is built on an event-driven architecture, allowing for loose coupling between components and enabling a more scalable and resilient system. The architecture is designed with microservices in mind, making it easy to integrate with other services and systems, enabling seamless communication between microservices, event sourcing and auditing.
+
+For using it you create an application, with the services you need. Example
+    
+```python
+
+from src.services import Settings, Application
+from src.users imprt Users
+
+settings = Settings(orm=SQLAlchemySettings(uri="postgresql://postgres:postgres@localhost:5432/postgres"))
+
+application = Application(settings)
+
+async with Users(bind=application) as users:
+    user = await users.create(name="John Doe")
+    user.password = "password" # This will enqueue an event and dispatch it to the event handlers when the user is saved
+    await users.save(user)
+
+```
+
+The idea of the context manager is to keep consistency boundaries in the aggregate, so if something goes wrong, the context manager will rollback the transaction and the user will not be persisted in the database.
+
+Handlers are also easily injected into the Users service, this will allow event sourcing and auditing for the events that the user of
+the system wants to track, like password changing, emails added, etc.
+
+```python
+
+application.bus.subscribe('email-added', lambda event: print(f'Send email notification to user {event.publisher.id}'))
+
+users = Users(bind=aplication)
+users.subscribe('phone-added', lambda event: user.session.execute('INSERT INTO phone_audit VALUES (:phone)', {'phone': event.payload}))
+users.subscribe('email-added', lambda event: raise Exception('Email had a problem'))
+async with users:
+    user = await users.create(name="John Doe")
+    user.add_phone("123456789")
+    user.add_email("jhony@test.com")
+    await users.save() # The transaction will be rolled for the user and no data will be persisted in the database
+
+```
+
+username and passwords are not a hard requirement, the idea is to have a flexible system that can be extended to support new authentication methods as needed.
 
 **Key Features**
 
