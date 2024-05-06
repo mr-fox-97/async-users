@@ -22,7 +22,12 @@ application = Application(settings)
 async with Users(bind=application) as users:
     user = await users.create(name="John Doe")
     user.password = "password" # This will enqueue an event and dispatch it to the event handlers when the user is saved
-    await users.save(user)
+    await users.save(user) # Here all mutations of the user model are persisted in the database in a single transaction.
+
+async with Users(bind=application) as users:
+    user = await users.read(name="John Doe")
+    assert await user.verify(password = "password") #The user uses a command handler to verify it against a DAO or service
+    print(user.password) #prints "******" The user don't store any info from passwords.
 
 ```
 
